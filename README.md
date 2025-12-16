@@ -56,7 +56,7 @@ com.puredroid.hk/
 
 1. **Clone the repository**
 ```bash
-git clone https://github.com/yourusername/hashkey.git
+git clone https://github.com/PureDroid/hashkey.git
 cd hashkey
 ```
 
@@ -176,7 +176,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## 📧 Contact
 
-Project Link: [https://github.com/yourusername/hashkey](https://github.com/yourusername/hashkey)
+Project Link: [https://github.com/PureDroid/hashkey](https://github.com/PureDroid/hashkey)
 
 ---
 
