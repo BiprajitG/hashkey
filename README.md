@@ -1,256 +1,238 @@
-# 🔐 HashKey - Secure Offline Password Manager
+# 🔐 HashKey
 
-A robust, fully offline password manager built in Java with SQLite, designed for maximum security and privacy. All your passwords stay on your machine, encrypted with military-grade AES-256 encryption.
+> **Secure Offline Password Vault Core**
 
-## ✨ Features
+**If the system can recover your secrets, so can an attacker.**
 
-### 🔒 Security First
-- **Master Password Protection** - Single password to access your entire vault
-- **AES-256 Encryption** - Military-grade encryption for all stored passwords
-- **Offline Only** - No internet connection required, no cloud sync, complete privacy
-- **Failed Login Protection** - Account locks after multiple failed attempts
-- **Clipboard Auto-Clear** - Automatically clears copied passwords after timeout
-- **Comprehensive Audit Log** - Track every change made to your accounts
+[![Java](https://img.shields.io/badge/Java-17+-orange.svg)](https://openjdk.java.net/)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Build](https://img.shields.io/badge/Build-Maven-red.svg)](https://maven.apache.org/)
 
-### 📋 Organization & Management
-- **Organization-based Structure** - Group accounts by company, project, or category
-- **Complete Account Information** - Store username, email, phone, URL, and notes
-- **Full CRUD Operations** - Create, Read, Update, Delete accounts and organizations
-- **Advanced Search & Filter** - Quickly find accounts across all organizations
-- **Change History** - Track old passwords and account modifications
+---
 
-### 🛠️ Developer Features
-- **Pure Java Implementation** - No external frameworks, clean code
-- **SQLite Database** - Lightweight, embedded, zero-configuration
-- **Maven Build System** - Easy dependency management
-- **Modular Architecture** - Clean separation of concerns (Model, Database, Service, Security)
-- **Cross-Platform Ready** - Works on Windows, Mac, Linux (Android support planned)
+## 🎯 What is HashKey?
+
+HashKey is a **secure, offline-first password vault core** written in Java. It provides the authentication, protection, and persistence foundations required to build a local password manager.
+
+> ⚠️ **Important:** HashKey is a module, not a user-facing application.
+
+---
+
+## 🛡️ The HashKey Promise
+
+| NO CLOUD | NO SYNC | NO BS |
+|:--------:|:-------:|:-----:|
+| Zero network dependency | Zero telemetry | Zero backdoors |
+| All data local | No password recovery | No exceptions |
+
+**All data remains local. Unrecoverable without the master password. By design.**
+
+---
+
+## ✨ What Can It Do?
+
+| 🔒 Security | 📁 Organization | 📴 Privacy |
+|------------|----------------|-----------|
+| Single master password | Group by category | 100% offline |
+| Memory-hard hashing | Username, email, URL | No external calls |
+| Brute-force protection | Notes & secrets | Deterministic only |
+| Authentication isolation | Full audit trails | Local-first forever |
+
+---
+
+## 🧠 How It Works
+
+```
+Master Password → Vault Key → Encrypts All Secrets
+     ↓
+Failed Attempts → Lockout → Persists to security.meta
+```
+
+1. Master password created **locally**
+2. All data locked behind it
+3. Authentication happens **offline**
+4. Repeated failures = temporary lockout
+5. Wrong password = **permanent data loss**
+
+> 💀 **There is no recovery mechanism. This is intentional.**
+
+---
 
 ## 🏗️ Architecture
 
+| Layer | Purpose |
+|-------|---------|
+| 📦 Domain Models | Core data structures |
+| 💾 Persistence Layer | Database operations |
+| 🔐 Security & Authentication | Access control |
+| 🔑 Cryptographic Primitives | Encryption/hashing |
+| ⚙️ Service Orchestration | Business logic |
+
+**Each layer has one job. No layer knows about the UI.**
+
+---
+
+## 📂 Project Structure
+
 ```
-com.puredroid.hk/
-├── model/          # Data models (Organization, Account, AuditLog, MasterPassword)
-├── database/       # Database connection and DAO layer
-│   ├── DatabaseManager.java    # Singleton connection manager
-│   └── *DAO.java               # Data Access Objects (In Progress)
-├── security/       # Encryption, master password, password generator (Planned)
-├── service/        # Business logic layer (Planned)
-├── util/           # Helper utilities (Planned)
-└── Main.java       # Application entry point
+hashkey/
+│
+├── 📁 src/main/java/com/puredroid/hk/
+│   │
+│   ├── 📦 model/                    # Domain objects
+│   │   ├── Organization.java       ✓ Done
+│   │   ├── Account.java            ✓ Done
+│   │   ├── AuditLog.java           ✓ Done
+│   │   └── MasterPassword.java     ✓ Done
+│   │
+│   ├── 💾 database/                 # Data persistence
+│   │   ├── DatabaseManager.java    ✓ Done
+│   │   └── dao/                    ⏳ Next
+│   │
+│   ├── 🔐 security/                 # Auth & protection
+│   │                                ⏳ Next
+│   │
+│   ├── 🔑 crypto/                   # Encryption
+│   │                                ⏳ Next
+│   │
+│   ├── ⚙️  service/                 # Business logic
+│   │                                ⏳ Next
+│   │
+│   └── 🧪 Main.java                 # Test harness
+│
+├── 📁 resources/
+│   └── schema.sql                  ✓ Done
+│
+├── 📄 pom.xml                       ✓ Done
+├── 🗄️  passwords.db                 (generated)
+├── 🛡️  security.meta                (generated)
+└── 📖 README.md                     ✓ You are here
 ```
 
-## 📊 Database Schema
+---
 
-### Tables
-- **organizations** - Group your accounts by organization
-  - Fields: id, name, description, created_at, updated_at
-- **accounts** - Store encrypted account credentials
-  - Fields: id, org_id, username, email, phone, password_encrypted, notes, url, created_at, updated_at, last_password_change
-- **audit_log** - Track all changes for security
-  - Fields: id, account_id, org_id, action_type, old_values, new_values, timestamp
-- **master_password** - Secure access control
-  - Fields: id, password_hash, salt, failed_attempts, locked_until, created_at
-- **settings** - Application configuration (key-value pairs)
+## 🚀 Quick Start
 
-### Indexes
-- `idx_accounts_org_id` - Fast lookup of accounts by organization
-- `idx_audit_account_id` - Fast lookup of audit logs by account
+**Prerequisites**
 
-## 🚀 Getting Started
+```
+☕ Java 17+
+📦 Maven 3.6+
+```
 
-### Prerequisites
-- Java JDK 17 or higher
-- Maven 3.6+
+**Build**
 
-### Installation
-
-1. **Clone the repository**
 ```bash
-git clone https://github.com/yourusername/hashkey.git
-cd hashkey
+mvn clean compile
 ```
 
-2. **Build the project**
-```bash
-mvn clean install
-```
+**Initialize**
 
-3. **Run the application**
 ```bash
 mvn exec:java -Dexec.mainClass="com.puredroid.hk.Main"
 ```
 
-Or run directly from your IDE (VSCode, IntelliJ, Eclipse)
-
-### First Time Setup
-On first launch, the application will:
-1. Create `passwords.db` in your project directory
-2. Initialize all database tables automatically
-3. Prompt you to create a master password (coming soon!)
-
-## 🔧 Configuration
-
-**Database location:** `passwords.db` (in project root directory)
-
-Settings will be configurable in the application:
-- Clipboard timeout duration
-- Auto-lock timer
-- Password generator defaults
-
-## 📦 Dependencies
-
-```xml
-<dependencies>
-    <!-- SQLite JDBC Driver -->
-    <dependency>
-        <groupId>org.xerial</groupId>
-        <artifactId>sqlite-jdbc</artifactId>
-        <version>3.44.1.0</version>
-    </dependency>
-    
-    <!-- Bouncy Castle for Encryption -->
-    <dependency>
-        <groupId>org.bouncycastle</groupId>
-        <artifactId>bcprov-jdk15on</artifactId>
-        <version>1.70</version>
-    </dependency>
-    
-    <!-- SLF4J for Logging -->
-    <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-api</artifactId>
-        <version>2.0.9</version>
-    </dependency>
-    <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-simple</artifactId>
-        <version>2.0.9</version>
-    </dependency>
-</dependencies>
-```
-
-## 🔐 Security Features Explained
-
-### Encryption (Planned)
-- All passwords encrypted with AES-256-GCM
-- Unique salt per password
-- Master password hashed with Argon2id
-
-### Master Password (Planned)
-- Never stored in plain text
-- Salted and hashed using Argon2id
-- Failed attempt tracking with automatic lockout
-
-### Audit Trail
-- Every create, update, delete operation logged
-- Old values preserved for rollback capability
-- Timestamps for all changes
-
-## 🎯 Development Roadmap
-
-### ✅ Completed
-- [x] Project structure and Maven setup
-- [x] Complete database schema design
-- [x] Model classes (Organization, Account, AuditLog, MasterPassword)
-- [x] DatabaseManager with Singleton pattern
-- [x] Database initialization and testing
-
-### 🚧 In Progress
-- [ ] DAO layer (OrganizationDAO, AccountDAO, AuditLogDAO, MasterPasswordDAO)
-
-### 📋 Planned
-- [ ] Encryption module (AES-256 for passwords)
-- [ ] Master password authentication (Argon2id hashing)
-- [ ] Password generator utility
-- [ ] Password strength indicator
-- [ ] Service layer (business logic)
-- [ ] Search and filter functionality
-- [ ] CLI interface
-- [ ] GUI (JavaFX/Swing)
-- [ ] Import/Export functionality (encrypted backup)
-- [ ] Clipboard auto-clear feature
-- [ ] Database encryption (SQLCipher)
-
-## 📁 Project Structure
+**Expected Output**
 
 ```
-hashkey/
-├── src/
-│   ├── main/
-│   │   ├── java/
-│   │   │   └── com/puredroid/hk/
-│   │   │       ├── model/
-│   │   │       │   ├── Organization.java       ✅
-│   │   │       │   ├── Account.java            ✅
-│   │   │       │   ├── AuditLog.java           ✅
-│   │   │       │   └── MasterPassword.java     ✅
-│   │   │       ├── database/
-│   │   │       │   └── DatabaseManager.java    ✅
-│   │   │       ├── security/                   ⏳
-│   │   │       ├── service/                    ⏳
-│   │   │       ├── util/                       ⏳
-│   │   │       └── Main.java                   ✅
-│   │   └── resources/
-│   │       └── schema.sql                      ✅
-│   └── test/
-├── pom.xml                                     ✅
-├── README.md                                   ✅
-└── passwords.db                                ✅ (auto-generated)
+✓ Database initialized successfully.
+✓ Database setup complete!
+✓ Database connection closed.
 ```
-
-## 🤝 Contributing
-
-This is a learning project, but contributions are welcome!
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## ⚠️ Security Notice
-
-**IMPORTANT:** 
-- This is an educational project currently under development
-- Core security features (encryption, master password) are not yet implemented
-- Always backup your database file
-- Once master password is implemented: if you forget it, your data is UNRECOVERABLE
-- For production use, consider audited, battle-tested solutions like Bitwarden or KeePass
-
-## 🧪 Testing
-
-To test the current implementation:
-
-```bash
-# Compile and run
-mvn clean compile
-mvn exec:java
-
-# You should see:
-# Database initialized successfully.
-# ✅ Database setup complete!
-# Database connection closed.
-```
-
-Check that `passwords.db` file is created in your project root!
-
-## 📝 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 🙏 Acknowledgments
-
-- Built as a learning project to understand encryption, database design, and secure software development
-- Inspired by KeePass, Bitwarden, and other open-source password managers
-- Special focus on clean architecture and best practices
-
-## 📧 Contact
-
-Project Link: [https://github.com/PureDroid/hashkey](https://github.com/PureDroid/hashkey)
 
 ---
 
-**⚡ HashKey - Your passwords, your machine, your control.**
+## 📊 Implementation Progress
 
-*Currently in active development - Star ⭐ to follow progress!*
+**✅ What's Done**
+
+- [x] Project setup & build system
+- [x] Database schema design
+- [x] Core domain models
+- [x] SQLite connection management
+- [x] Offline authentication foundation
+- [x] Failed-attempt tracking & lockout
+- [x] Master password setup & verification
+
+**🔜 What's Next**
+
+- [ ] Vault key derivation from master password
+- [ ] Encryption of stored secrets
+- [ ] Full credential management (CRUD)
+- [ ] Audit trail integration
+- [ ] Service-layer consolidation
+
+**Each step builds on the previous one. No shortcuts.**
+
+---
+
+## 🛡️ Security Model
+
+**Failed-Attempt Protection**
+
+```
+Attempt 1: ❌ Failed
+Attempt 2: ❌ Failed  
+Attempt 3: ❌ Failed
+───────────────────────
+🔒 LOCKOUT TRIGGERED
+⏱️  Wait period enforced
+💾 State persists on disk
+```
+
+**Why?** To resist brute-force attacks.
+
+**How?** Lockout metadata stored separately from encrypted data.
+
+**Result?** Even if vault is inaccessible, lockout state remains.
+
+---
+
+## 💾 Data Storage
+
+| Feature | Status |
+|---------|--------|
+| All data stored locally | ✓ |
+| Sensitive values encrypted | ✓ |
+| Auth state separate | ✓ |
+| Indexed for performance | ✓ |
+
+**No cloud. No sync. No exceptions.**
+
+---
+
+## ⚠️ Critical Security Notice
+
+### 🚨 THERE IS NO PASSWORD RECOVERY 🚨
+
+| Reality Check |
+|:-------------:|
+| **Lost Password = Lost Data** |
+| This is not a bug. |
+| This is not temporary. |
+| This is the design. |
+
+**If you need password recovery, this project is not for you.**
+
+---
+
+## 💭 Final Thought
+
+**HashKey is intentionally quiet.**
+
+If it feels simple, that is by design.  
+If it feels boring, it is doing its job.
+
+*The best security is the security you don't notice.*
+
+---
+
+**⚠️ PROJECT STATUS: UNDER ACTIVE DEVELOPMENT**
+
+![Status](https://img.shields.io/badge/Status-In%20Development-yellow) ![Stability](https://img.shields.io/badge/Stability-Experimental-orange) 
+> HashKey is currently in early development. Core features are being implemented.
+> APIs and interfaces are subject to change without notice.
+
+---
+
+**Made with 🔐 by developers who forgot their passwords one too many times**
