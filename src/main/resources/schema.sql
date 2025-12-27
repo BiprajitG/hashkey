@@ -42,8 +42,6 @@ CREATE TABLE IF NOT EXISTS master_password (
     id INTEGER PRIMARY KEY CHECK (id = 1),
     password_hash TEXT NOT NULL,
     salt TEXT NOT NULL,
-    failed_attempts INTEGER DEFAULT 0,
-    locked_until TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

@@ -6,16 +6,12 @@ public class MasterPassword {
     private int id;
     private String passwordHash;
     private String salt;
-    private int failedAttempts;
-    private LocalDateTime lockedUntil;
     private LocalDateTime createdAt;
 
-    public MasterPassword(int id, String passwordHash, String salt, int failedAttempts, LocalDateTime lockedUntil, LocalDateTime createdAt) {
+    public MasterPassword(int id, String passwordHash, String salt, LocalDateTime createdAt) {
         this.id = id;
         this.passwordHash = passwordHash;
         this.salt = salt;
-        this.failedAttempts = failedAttempts;
-        this.lockedUntil = lockedUntil;
         this.createdAt = createdAt;
     }
 
@@ -23,8 +19,6 @@ public class MasterPassword {
         this.id = 1;
         this.passwordHash = passwordHash;
         this.salt = salt;
-        this.failedAttempts = 0;
-        this.lockedUntil = null;
     }
 
     public int getId() {
@@ -51,22 +45,6 @@ public class MasterPassword {
         this.salt = salt;
     }
 
-    public int getFailedAttempts() {
-        return failedAttempts;
-    }
-
-    public void setFailedAttempts(int failedAttempts) {
-        this.failedAttempts = failedAttempts;
-    }
-
-    public LocalDateTime getLockedUntil() {
-        return lockedUntil;
-    }
-
-    public void setLockedUntil(LocalDateTime lockedUntil) {
-        this.lockedUntil = lockedUntil;
-    }
-
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
@@ -79,8 +57,6 @@ public class MasterPassword {
     public String toString() {
         return "MasterPassword{" +
                 "id=" + id +
-                ", failedAttempts=" + failedAttempts +
-                ", lockedUntil=" + lockedUntil +
                 ", createdAt=" + createdAt +
                 '}';
     }

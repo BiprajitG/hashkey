@@ -12,6 +12,7 @@ public class DatabaseManager {
     private static DatabaseManager instance;
     private Connection connection;
     private static final String DB_PATH = "passwords.db";
+    private static final String SCHEMA_PATH = "schema.sql";
 
     private DatabaseManager() {
         // Initialize the database connection here using DB_PATH
@@ -33,7 +34,7 @@ public class DatabaseManager {
 
     public void initializeDatabase() throws SQLException, IOException {
         try (Connection conn = getConnection();
-             InputStream in = getClass().getClassLoader().getResourceAsStream("schema.sql");
+             InputStream in = getClass().getClassLoader().getResourceAsStream(SCHEMA_PATH);
              Scanner scanner = new Scanner(in, "UTF-8")) {
                 scanner.useDelimiter(";");
                 Statement statement = conn.createStatement();

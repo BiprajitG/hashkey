@@ -1,6 +1,0 @@
-com\puredroid\hk\model\Organization.class
-com\puredroid\hk\model\MasterPassword.class
-com\puredroid\hk\model\AuditLog.class
-com\puredroid\hk\database\DatabaseManager.class
-com\puredroid\hk\App.class
-com\puredroid\hk\model\Account.class
