@@ -5,6 +5,7 @@ import com.hashkey.hk.database.dao.MasterPasswordDAO;
 import com.hashkey.hk.database.dao.StoredMasterPassword;
 import com.hashkey.hk.security.AuthResult;
 import com.hashkey.hk.security.MasterPasswordVerificationService;
+import com.hashkey.hk.security.MemoryWiper;
 import com.hashkey.hk.vault.VaultSession;
 
 public class VaultUnlockService {
@@ -44,9 +45,8 @@ public class VaultUnlockService {
         vaultSession.unlock(vaultKey);
 
         // hygiene: wipe derived key copy
-        for (int i = 0; i < vaultKey.length; i++) {
-            vaultKey[i] = 0;
-        }
+        MemoryWiper.wipe(vaultKey);
+
 
         return AuthResult.success();
     }

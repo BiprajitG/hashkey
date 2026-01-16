@@ -4,6 +4,7 @@ import com.hashkey.hk.crypto.VaultEncryptor;
 import com.hashkey.hk.database.dao.AccountDAO;
 import com.hashkey.hk.database.dao.AuditLogDAO;
 import com.hashkey.hk.model.Account;
+import com.hashkey.hk.security.MemoryWiper;
 import com.hashkey.hk.vault.VaultSession;
 
 import java.nio.charset.StandardCharsets;
@@ -51,9 +52,8 @@ public class AccountService {
             );
 
         // hygiene: wipe plaintext password
-        for (int i = 0; i < plaintextPassword.length; i++) {
-            plaintextPassword[i] = 0;
-        }
+        MemoryWiper.wipe(plaintextPassword);
+
 
                 // 3️⃣ Build account model (encrypted only)
         Account account = new Account(

@@ -47,9 +47,7 @@ public class MasterPasswordVerificationService {
             PasswordHasher.hash(inputPassword, salt);
 
         // hygiene: wipe password from memory
-        for (int i = 0; i < inputPassword.length; i++) {
-            inputPassword[i] = 0;
-        }
+        MemoryWiper.wipe(inputPassword);
 
         // 4️⃣ Constant-time comparison
         boolean match =

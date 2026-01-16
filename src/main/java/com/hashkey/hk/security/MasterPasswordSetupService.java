@@ -27,8 +27,7 @@ public class MasterPasswordSetupService {
 
 
         // hygiene
-        for (int i = 0; i < masterPassword.length; i++) {
-            masterPassword[i] = 0;
-        }
+        MemoryWiper.wipe(masterPassword);
+
     }
 }
