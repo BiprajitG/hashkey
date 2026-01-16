@@ -1,12 +1,11 @@
 # 🔐 HashKey
 
 <p align="center">
-  <img src="assets/social-preview.png" alt="hashkey – Secure Password Manager for Java" />
+  <img src="assets/social-preview.png" alt="HashKey – Secure Offline Password Vault Core" />
 </p>
 
-> **Secure Offline Password Vault Core**
-
-**If the system can recover your secrets, so can an attacker.**
+> **Secure Offline Password Vault Core (Java)**  
+> *If the system can recover your secrets, so can an attacker.*
 
 [![Java](https://img.shields.io/badge/Java-17+-orange.svg)](https://openjdk.java.net/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
@@ -16,63 +15,91 @@
 
 ## 🎯 What is HashKey?
 
-HashKey is a **secure, offline-first password vault core** written in Java. It provides the authentication, protection, and persistence foundations required to build a local password manager.
+**HashKey is a secure, offline-first password vault core written in Java.**
 
-> ⚠️ **Important:** HashKey is a module, not a user-facing application.
+It is **not a UI**, **not a cloud service**, and **not a complete password manager**.
+
+HashKey provides:
+- Authentication
+- Cryptographic protection
+- Secure persistence
+- Vault key lifecycle management
+
+so that **other applications** (CLI, desktop app, mobile bridge, etc.) can safely build on top of it.
 
 ---
 
 ## 🛡️ The HashKey Promise
 
-| NO CLOUD | NO SYNC | NO BS |
-|:--------:|:-------:|:-----:|
+| NO CLOUD | NO SYNC | NO RECOVERY |
+|:--------:|:-------:|:-----------:|
 | Zero network dependency | Zero telemetry | Zero backdoors |
-| All data local | No password recovery | No exceptions |
+| All data stays local | No background services | Lost password = lost data |
+| Offline by design | Deterministic behavior | This is intentional |
 
-**All data remains local. Unrecoverable without the master password. By design.**
-
----
-
-## ✨ What Can It Do?
-
-| 🔒 Security | 📁 Organization | 📴 Privacy |
-|------------|----------------|-----------|
-| Single master password | Group by category | 100% offline |
-| Memory-hard hashing | Username, email, URL | No external calls |
-| Brute-force protection | Notes & secrets | Deterministic only |
-| Authentication isolation | Full audit trails | Local-first forever |
+> **If HashKey can't unlock your vault, nobody can.**
 
 ---
 
-## 🧠 How It Works
+## ✨ What HashKey Provides
+
+### 🔒 Security & Authentication
+- Single master password (never stored)
+- Memory-hard password hashing (Argon2)
+- Brute-force protection with lockout
+- Authentication isolated from storage
+- External lockout metadata (`security.meta`)
+
+### 🔑 Cryptographic Protection
+- Vault key derived in memory only
+- Authenticated encryption (AES-GCM)
+- No plaintext written to disk
+- Explicit key lifecycle (unlock / lock / wipe)
+
+### 💾 Local Persistence
+- Embedded SQLite database
+- Encrypted secrets only
+- Audit trail for sensitive actions
+- Zero external dependencies at runtime
+
+### 🧱 Architecture
+- Strict separation of concerns
+- DAO isolation (no crypto in persistence)
+- Services orchestrate, never store secrets
+- Designed as a reusable **library module**
+
+---
+
+## 🧠 High-Level Flow
 
 ```
-Master Password → Vault Key → Encrypts All Secrets
-     ↓
-Failed Attempts → Lockout → Persists to security.meta
+Master Password
+       ↓
+Authentication & Lockout
+       ↓
+Vault Key (in memory only)
+       ↓
+Encrypt / Decrypt Secrets
+       ↓
+Encrypted Persistence (SQLite)
 ```
 
-1. Master password created **locally**
-2. All data locked behind it
-3. Authentication happens **offline**
-4. Repeated failures = temporary lockout
-5. Wrong password = **permanent data loss**
-
-> 💀 **There is no recovery mechanism. This is intentional.**
+Failed attempts are tracked **outside** the database to ensure lockout works even if the vault itself is inaccessible.
 
 ---
 
-## 🏗️ Architecture
+## 🏗️ Architecture Overview
 
-| Layer | Purpose |
-|-------|---------|
-| 📦 Domain Models | Core data structures |
-| 💾 Persistence Layer | Database operations |
-| 🔐 Security & Authentication | Access control |
-| 🔑 Cryptographic Primitives | Encryption/hashing |
-| ⚙️ Service Orchestration | Business logic |
+| Layer | Responsibility |
+|-------|----------------|
+| 📦 Domain Models | Pure data structures |
+| 💾 Persistence (DAO) | SQLite access only |
+| 🔐 Security | Authentication & lockout |
+| 🔑 Crypto | Hashing & encryption primitives |
+| ⚙️ Services | Business orchestration |
+| 🧠 Vault Session | In-memory key lifecycle |
 
-**Each layer has one job. No layer knows about the UI.**
+No layer leaks responsibility into another.
 
 ---
 
@@ -81,127 +108,102 @@ Failed Attempts → Lockout → Persists to security.meta
 ```
 hashkey/
 │
-├── 📁 src/main/java/com/hashkey/hk/
-│   │
-│   ├── 📦 model/                    # Domain objects
-│   │   ├── Organization.java       ✓ Done
-│   │   ├── Account.java            ✓ Done
-│   │   ├── AuditLog.java           ✓ Done
-│   │   └── MasterPassword.java     ✓ Done
-│   │
-│   ├── 💾 database/                 # Data persistence
-│   │   ├── DatabaseManager.java    ✓ Done
-│   │   └── dao/                    ⏳ Next
-│   │
-│   ├── 🔐 security/                 # Auth & protection
-│   │                                ⏳ Next
-│   │
-│   ├── 🔑 crypto/                   # Encryption
-│   │                                ⏳ Next
-│   │
-│   ├── ⚙️  service/                 # Business logic
-│   │                                ⏳ Next
-│   │
-│   └── 🧪 Main.java                 # Test harness
+├── src/main/java/com/hashkey/hk/
+│ │
+│ ├── model/ # Domain models
+│ │ ├── Organization.java
+│ │ ├── Account.java
+│ │ ├── AuditLog.java
+│ │ └── MasterPassword.java
+│ │
+│ ├── database/ # Persistence layer
+│ │ ├── DatabaseManager.java
+│ │ └── dao/
+│ │ ├── AccountDAO.java
+│ │ ├── MasterPasswordDAO.java
+│ │ ├── AuditLogDAO.java
+│ │ └── impl/
+│ │ ├── AccountDAOImpl.java
+│ │ ├── MasterPasswordDAOImpl.java
+│ │ └── AuditLogDAOImpl.java
+│ │
+│ ├── security/ # Authentication & lockout
+│ │ ├── MasterPasswordSetupService.java
+│ │ ├── MasterPasswordVerificationService.java
+│ │ ├── LockoutPolicy.java
+│ │ ├── AuthResult.java
+│ │ └── (internal helpers)
+│ │
+│ ├── crypto/ # Cryptographic primitives
+│ │ ├── VaultKeyDeriver.java
+│ │ └── VaultEncryptor.java
+│ │
+│ ├── service/ # Business orchestration
+│ │ ├── VaultUnlockService.java
+│ │ └── AccountService.java
+│ │
+│ └── vault/ # In-memory vault session
+│ └── VaultSession.java
 │
-├── 📁 resources/
-│   └── schema.sql                  ✓ Done
+├── src/main/resources/
+│ └── schema.sql # Database schema
 │
-├── 📄 pom.xml                       ✓ Done
-├── 🗄️  passwords.db                 (generated)
-├── 🛡️  security.meta                (generated)
-└── 📖 README.md                     ✓ You are here
+├── passwords.db # Generated at runtime
+├── security.meta # Lockout metadata (generated)
+├── pom.xml
+└── README.md
 ```
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Getting Started (Developer)
 
-**Prerequisites**
+### Requirements
+- Java **17+**
+- Maven **3.6+**
 
-```
-☕ Java 17+
-📦 Maven 3.6+
-```
-
-**Build**
-
+### Build
 ```bash
 mvn clean compile
 ```
 
-**Initialize**
-
+### Initialize Database
 ```bash
 mvn exec:java -Dexec.mainClass="com.hashkey.hk.Main"
 ```
 
-**Expected Output**
-
-```
-✓ Database initialized successfully.
-✓ Database setup complete!
-✓ Database connection closed.
-```
+This creates:
+- `passwords.db`
+- `security.meta`
 
 ---
 
-## 📊 Implementation Progress
+## 📊 Project Status
 
-**✅ What's Done**
+### ✅ Core Completed (Frozen)
 
-- [x] Project setup & build system
-- [x] Database schema design
-- [x] Core domain models
-- [x] SQLite connection management
-- [x] Offline authentication foundation
-- [x] Failed-attempt tracking & lockout
-- [x] Master password setup & verification
+- Authentication & lockout
+- Master password lifecycle
+- Vault key lifecycle
+- Encryption & decryption
+- DAO isolation
+- Audit logging
+- Memory hygiene
+- End-to-end sanity verified
 
-**🔜 What's Next**
+### 🔒 Core API Stability
 
-- [ ] Vault key derivation from master password
-- [ ] Encryption of stored secrets
-- [ ] Full credential management (CRUD)
-- [ ] Audit trail integration
-- [ ] Service-layer consolidation
+The following are considered stable public APIs:
 
-**Each step builds on the previous one. No shortcuts.**
+- `MasterPasswordSetupService`
+- `MasterPasswordVerificationService`
+- `VaultUnlockService`
+- `AccountService`
+- `VaultSession`
+- `AuthResult`
+- Crypto primitives
 
----
-
-## 🛡️ Security Model
-
-**Failed-Attempt Protection**
-
-```
-Attempt 1: ❌ Failed
-Attempt 2: ❌ Failed  
-Attempt 3: ❌ Failed
-───────────────────────
-🔒 LOCKOUT TRIGGERED
-⏱️  Wait period enforced
-💾 State persists on disk
-```
-
-**Why?** To resist brute-force attacks.
-
-**How?** Lockout metadata stored separately from encrypted data.
-
-**Result?** Even if vault is inaccessible, lockout state remains.
-
----
-
-## 💾 Data Storage
-
-| Feature | Status |
-|---------|--------|
-| All data stored locally | ✓ |
-| Sensitive values encrypted | ✓ |
-| Auth state separate | ✓ |
-| Indexed for performance | ✓ |
-
-**No cloud. No sync. No exceptions.**
+Internal implementations may change without notice.
 
 ---
 
@@ -209,34 +211,35 @@ Attempt 3: ❌ Failed
 
 ### 🚨 THERE IS NO PASSWORD RECOVERY 🚨
 
-| Reality Check |
-|:-------------:|
-| **Lost Password = Lost Data** |
-| This is not a bug. |
-| This is not temporary. |
-| This is the design. |
+**Reality:**
+- Forget the master password → data is gone
+- No backdoors
+- No reset
+- No exceptions
 
-**If you need password recovery, this project is not for you.**
+**This is by design.**
 
----
-
-## 💭 Final Thought
-
-**HashKey is intentionally quiet.**
-
-If it feels simple, that is by design.  
-If it feels boring, it is doing its job.
-
-*The best security is the security you don't notice.*
+If you need recovery, cloud sync, or convenience features, HashKey is not the right tool.
 
 ---
 
-**⚠️ PROJECT STATUS: UNDER ACTIVE DEVELOPMENT**
+## 💭 Design Philosophy
 
-![Status](https://img.shields.io/badge/Status-In%20Development-yellow) ![Stability](https://img.shields.io/badge/Stability-Experimental-orange) 
-> HashKey is currently in early development. Core features are being implemented.
-> APIs and interfaces are subject to change without notice.
+- **Simple** > clever
+- **Explicit** > implicit
+- **Deterministic** > magical
+- **Security** > convenience
+
+HashKey is intentionally boring.  
+That's how secure systems survive.
 
 ---
 
-**Made with 🔐 by developers who forgot their passwords one too many times**
+## 📜 License
+
+MIT License.  
+Use it. Break it. Embed it. Audit it.
+
+---
+
+**🔐 HashKey — A quiet core for serious vaults.**
